@@ -13,20 +13,30 @@ import {
   ApiCreatedResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 import { AuthProtected } from './protected/auth.protected';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Post('register')
+  @ApiOperation({ summary: 'Register' })
+  @ApiCreatedResponse({ description: 'Success' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async register(@Body() createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ description: 'Success' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  login(@Body() input: { username: string; password: string }) {
-    return this.authService.authenticate(input);
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @UseGuards(AuthProtected)

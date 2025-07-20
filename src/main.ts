@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('REST API')
-    .setDescription('The REST API description')
+    .setTitle('Auth API')
+    .setDescription('The Auth API description')
     .setVersion('1.0')
     .addTag('users')
     .build();
