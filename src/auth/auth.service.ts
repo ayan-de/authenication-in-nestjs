@@ -9,6 +9,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { ObjectId } from 'typeorm';
+import { GoogleUserDto } from './dto/google-user.dto';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
@@ -61,5 +62,32 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async googleLogin(googleUserDto: GoogleUserDto) {
+    const user = await this.usersService.findByEmail(googleUserDto.email);
+    if (user) {
+      return this.signIn(user.id, user.name, user.email);
+    }
+
+    const { email, firstName, lastName } = googleUserDto;
+    const newUser = await this.usersService.create({
+      email,
+      name: `${firstName} ${lastName}`,
+      password: '',
+    });
+    return this.signIn(newUser.id, newUser.name, newUser.email);
+  }
+
+  async verifyUsers(email: string, pass: string) {
+    try {
+      const user = await this.usersService.findByEmail(email);
+      if (user && user.password === pass) {
+        return user;
+      }
+      return null;
+    } catch (error: any) {
+      throw new UnauthorizedException('Invalid credentials', error);
+    }
   }
 }

@@ -8,11 +8,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -41,7 +43,17 @@ export class AuthController {
 
   @UseGuards(AuthProtected)
   @Get('me')
-  getUserInfo(@Req() request: any) {
+  getUserInfo(@Req() request: Request) {
     return request.user;
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: Request) {
+    return this.authService.googleLogin(req.user as any);
   }
 }
